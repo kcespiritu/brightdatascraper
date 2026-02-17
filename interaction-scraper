@@ -1,0 +1,64 @@
+navigate(input.url_in);
+const timeline_selector = '.timeline-item';
+wait(timeline_selector, {
+  timeout: 30000
+});
+console.log('Timeline loaded, checking for tweets...');
+
+// --- New configuration for the goal ---
+const TARGET_URLS = 5;
+const max_loads = input.max_loads || 3; // Keep max_loads for safety/deep scrape if goal isn't met quickly
+let load_count = 0;
+// -------------------------------------
+
+let all_urls = parse().urls || [];
+console.log(`Found ${all_urls.length} tweet URLs on initial load`);
+
+const show_more_selector = '.show-more a';
+
+// --- Check and break after the initial load ---
+if (all_urls.length >= TARGET_URLS) {
+    console.log(`Target of ${TARGET_URLS} reached on initial load. Stopping.`);
+} else {
+    // --- Only enter loop if more loading is needed and max_loads allows it ---
+    while (load_count < max_loads) {
+        if (!el_exists(show_more_selector, 2000)) {
+            console.log('No more "Load more" link found');
+            break;
+        }
+
+        console.log(`Loading more tweets... (${load_count + 1}/${max_loads})`);
+        scroll_to(show_more_selector);
+        click(show_more_selector);
+
+        // Wait for the new tweets to load
+        wait(timeline_selector, {
+            timeout: 15000
+        });
+
+        const page_urls = parse().urls || [];
+        all_urls = all_urls.concat(page_urls);
+        load_count++;
+        
+        console.log(`Current total unique URLs after load ${load_count}: ${new Set(all_urls).size}`);
+        
+        // --- Early exit condition: check if the required number of unique URLs has been found ---
+        if (new Set(all_urls).size >= TARGET_URLS) {
+            console.log(`Target of ${TARGET_URLS} reached after load ${load_count}. Stopping.`);
+            break; 
+        }
+    }
+}
+
+console.log(`Finished loading/checking. Total URLs collected: ${all_urls.length}`);
+
+// --- Final processing and capping to TARGET_URLS ---
+const unique_urls = [...new Set(all_urls)];
+console.log(`After deduplication: ${unique_urls.length} unique tweet URLs`);
+
+// Slice the array to get at most the target number (5)
+const final_urls = unique_urls.slice(0, TARGET_URLS); 
+console.log(`Capped to ${final_urls.length} final tweet URLs for next stage.`);
+// ---------------------------------------------------
+
+collect(parse());

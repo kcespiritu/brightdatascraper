@@ -1,0 +1,19 @@
+const tweet_urls = [];
+const base_url = location.origin;
+
+$('.timeline-item .tweet-date a[href*="/status/"]').each(function() {
+    const href = $(this).attr('href');
+    if (href) {
+        let clean_href = href.replace(/#m$/, '');
+        if (!clean_href.startsWith('/')) clean_href = '/' + clean_href;
+        const full_url = base_url + clean_href;
+        tweet_urls.push(full_url);
+    }
+});
+
+const unique_urls = [...new Set(tweet_urls)];
+console.log(`Extracted ${unique_urls.length} unique tweet URLs from ${tweet_urls.length} total links found.`);
+
+return {
+    urls: unique_urls
+}
