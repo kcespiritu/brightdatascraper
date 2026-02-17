@@ -1,0 +1,34 @@
+# macOS
+.DS_Store
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# Python
+__pycache__/
+*.py[cod]
+
+# n8n credentials and local files
+*.key
+*.pem
+.env
+.env.*
+
+# IDEs
+.vscode/
+.idea/
+
+# logs
+logs/
+*.log
+
+# Temp
+tmp/
+temp/
+
+# Ignore exported workflow credentials or private manifests
+*.json.enc
